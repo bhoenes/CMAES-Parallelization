@@ -1,0 +1,79 @@
+\documentclass[twocolumn, balance]{article}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+\begin{document}
+
+\title{CMAES}
+
+\author{Brian Hoenes\\
+    Colorado School of Mines\\
+	Department of Mathematics and Computer Science\\
+	1700 Illinois Street\\
+    Golden, Colorado, USA\\
+	bhoenes@mines.edu}
+
+\maketitle
+\begin{abstract}
+This paper provides a sample of a \LaTeX\ document which conforms to
+the formatting guidelines for ACM SIG Proceedings.
+It complements the document \textit{Author's Guide to Preparing
+ACM SIG Proceedings Using \LaTeX$2_\epsilon$\ and Bib\TeX}. This
+source file has been written with the intention of being
+compiled under \LaTeX$2_\epsilon$\ and BibTeX.
+
+The developers have tried to include every imaginable sort
+of ``bells and whistles", such as a subtitle, footnotes on
+title, subtitle and authors, as well as in the text, and
+every optional component (e.g. Acknowledgments, Additional
+Authors, Appendices), not to mention examples of
+equations, theorems, tables and figures.
+
+To make best use of this sample document, run it through \LaTeX\
+and BibTeX, and compare this source code with the printed
+output produced by the dvi file.
+\end{abstract}
+
+\section{Introduction}
+
+Localization of dipole
+
+Inverse problems
+
+\subsection{CMAES} 
+
+\begin{algorithm}[h!]
+\caption{Basic pCMAES}
+\label{pCMAES}
+\begin{algorithmic}
+\REQUIRE{$\textit{obs} \in \mathbb{R}^O, \textit{Evaluate}(\mathbb{R}^D, \mathbb{R}^O) \Rightarrow \mathbb{R}, \lambda \in \mathbb{Z}_+$}
+\FORALL{Processors $p\in P$}
+	\STATE initialize Random Seed on $p$
+	\STATE initialize mean $m$, covariance $C$, step size $\sigma$, path(s) \textit{path}
+	\STATE $\mu \Leftarrow \frac{\lambda}{2}$
+	\WHILE{NotDone}
+		\FOR{$i \Leftarrow 1 \textrm{to} \frac{\lambda}{\| P \|}$}
+			\STATE $q_i \Leftarrow N(m,C)$
+			\STATE $v_i \Leftarrow \textit{Evaluate}(q_i, \textit{observations}$
+		\ENDFOR
+		\STATE $\textit{Sort}(v,q)$
+		\STATE $m \Leftarrow \textit{mean}(q_1:q_\mu)$
+		\STATE Update \textit{path} using $m$
+		\STATE Update $\sigma$ using \textit{path}
+		\STATE Update $C$ using \text{path}, $\sigma$
+		\STATE Determine NotDone
+	\ENDWHILE
+	\STATE Reduce Best Solution
+\ENDFOR
+\end{algorithmic}
+\end{algorithm}
+
+\section{The body of The Paper}
+Typically, the body of a paper is organized
+into a hierarchical structure, with numbered or unnumbered
+
+
+\end{document}
