@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.3.10)  10 MAY 2011 13:23
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.3.10)  13 MAY 2011 13:40
 entering extended mode
  %&-line parsing enabled.
 **bhoenes_final_project.tex
@@ -156,38 +156,67 @@ LaTeX Font Info:    Try loading font information for U+msb on input line 19.
 
 (/usr/share/texmf-texlive/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2009/06/22 v3.00 AMS symbols B
-)
+) [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}
 
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-[1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}
 
 
 ]
-(./bhoenes_final_project.aux) ) 
+
+LaTeX Warning: Citation `schnieder1999' on page 2 undefined on input line 35.
+
+
+LaTeX Warning: Citation `hakkarinen2011' on page 2 undefined on input line 42.
+
+[2
+
+]
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+
+Underfull \hbox (badness 1215) in paragraph at lines 105--105
+[]\OT1/cmr/bx/n/14.4 Hybrid OpenMP/MPI Ap-
+ []
+
+
+Underfull \vbox (badness 1460) has occurred while \output is active []
+
+
+Overfull \vbox (20.89388pt too high) has occurred while \output is active []
+
+
+[3] [4
+
+] (./bhoenes_final_project.aux)
+
+LaTeX Warning: There were undefined references.
+
+ ) 
 Here is how much of TeX's memory you used:
- 1433 strings out of 493911
- 15943 string characters out of 1155221
- 72979 words of memory out of 3000000
- 4712 multiletter control sequences out of 15000+50000
+ 1436 strings out of 493911
+ 15981 string characters out of 1155221
+ 76979 words of memory out of 3000000
+ 4715 multiletter control sequences out of 15000+50000
  12547 words of font info for 48 fonts, out of 3000000 for 9000
  706 hyphenation exceptions out of 8191
- 27i,7n,24p,278b,540s stack positions out of 5000i,500n,10000p,200000b,50000s
-</usr/share/texmf-texlive/fonts/type1/public/ams
-fonts/cm/cmbx10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cm
-bx12.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmmi10.pfb></
-usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/te
-xmf-texlive/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texmf-texlive/
-fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texmf-texlive/fonts/type1/
-public/amsfonts/cm/cmr17.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfo
-nts/cm/cmr7.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmsy10
-.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/s
-hare/texmf-texlive/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texmf-
-texlive/fonts/type1/public/amsfonts/cm/cmti7.pfb></usr/share/texmf-texlive/font
-s/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on bhoenes_final_project.pdf (1 page, 142758 bytes).
+ 27i,7n,24p,1161b,540s stack positions out of 5000i,500n,10000p,200000b,50000s
+</usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/sha
+re/texmf-texlive/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texmf-te
+xlive/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texmf-texlive/fonts
+/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texmf-texlive/fonts/type1/publi
+c/amsfonts/cm/cmr10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/c
+m/cmr12.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr17.pfb>
+</usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/t
+exmf-texlive/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-texliv
+e/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texmf-texlive/fonts/type
+1/public/amsfonts/cm/cmti10.pfb></usr/share/texmf-texlive/fonts/type1/public/am
+sfonts/symbols/msbm10.pfb>
+Output written on bhoenes_final_project.pdf (4 pages, 145666 bytes).
 PDF statistics:
- 58 PDF objects out of 1000 (max. 8388607)
+ 63 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -12,6 +12,8 @@
 #include <string.h>
 #include <mpi.h>
 #include "myconfig.h"
+#include <omp.h>
+
 
 #define MIN(a,b) ((a)<(b)?(a):(b))
 #define BLOCK_LOW(id, p, n) ((id)*(n)/(p))
@@ -47,6 +49,7 @@ int main(int argc, char **argv) {
   int id;  //Rank
   int p;  //Number processors
   double elapsed_time;//Time from beginning.
+  double maxTime; // largest elapsed time from all processes
   double bestValue;
   int lambda;
   int maxLambda;
@@ -60,6 +63,8 @@ int main(int argc, char **argv) {
   int * rdisplsPop; //For MPI_Alltoallv for pop
   int canTerminate;
   int canTerminateBuffer;
+  int numOMPThreads; // number of OMP threads to use
+  int numChunks, chunk; // number of chunks to break lambda into for OpenMP looping
 
   //Start MPI
   MPI_Init(&argc, &argv);
@@ -68,8 +73,6 @@ int main(int argc, char **argv) {
 
   MPI_Comm_rank(MPI_COMM_WORLD, &id); //Set id
   MPI_Comm_size(MPI_COMM_WORLD, &p); //set p
-
-
 
   for (i=0;i<32;i++)
   {
@@ -82,21 +85,34 @@ int main(int argc, char **argv) {
   {
     numberDipoles=atoi(argv[1]);
   }
-
+  
   //Set lambda based on entry, default of 40
   maxLambda=40;
   if (argc>=3)
   {
     maxLambda=atoi(argv[2]);
   }
-
-  if (id==0)
+  
+  //Set numOMPThreads based on entry, default of 4
+  numOMPThreads=4;
+  if (argc>=4)
   {
-    printf("Dipoles:%d MaxLambda:%d\n",numberDipoles,maxLambda);
+    numOMPThreads=atoi(argv[3]);
+  }
+  omp_set_num_threads(numOMPThreads);
+
+  //Set numChunks based on entry, default of 10
+  numChunks=10;
+  if (argc>=5)
+  {
+    numChunks=atoi(argv[4]);
   }
 
   //Allocate lambda pieces to each processor, based on the size of maxLambda and the number of processors.
   lambda = BLOCK_SIZE(id,p,maxLambda);
+  
+  // set chunk size for OpenMP looping
+  chunk = lambda / numChunks;
 
   printf("Id:%d Lambda:%d\n",id,lambda);
 
@@ -145,7 +161,7 @@ int main(int argc, char **argv) {
   //arFunvals = cmaes_init(&evo, 0, NULL, NULL, 0, 0, "initials.par"); 
 
 //  printf("0\n");
-  
+
   //The maxLambda parameter has been added so all of them will have enough space to store the results
   arFunvals = reinit(&evo, maxLambda, numberDipoles);
 
@@ -157,7 +173,7 @@ int main(int argc, char **argv) {
 
   //Reset the seed value based on processor (so they don't all come out the same!
   evo.sp.seed=evo.sp.seed*(id+1)/p;
-  printf("proc: %d seed: %d\n",id,evo.sp.seed);
+//  printf("proc: %d seed: %d\n",id,evo.sp.seed);
 
 
   //outputCMAES_t(evo,0);
@@ -173,7 +189,7 @@ int main(int argc, char **argv) {
 //    arFunvals = reinit(&evo, i);
     //outputCMAES_t(evo);
 
-
+  
   evo.sp.lambda=lambda;
   canTerminate = (0==1);
   /* Iterate until stop criterion holds */
@@ -200,27 +216,26 @@ int main(int argc, char **argv) {
 	   while (!is_feasible(evo.rgrgx[i],(int) cmaes_Get(&evo, "dim"))) 
 	   {
              cmaes_ReSampleSingle(&evo, i); 
-           }
+       }
       }
 
       for (i=0;i<lambda;i++)
       {
          for(j=0;j<(6*numberDipoles)+2;j++)
          {
-	   evo.rgrgx[BLOCK_LOW(id,p,maxLambda)+i][j]=evo.rgrgx[i][j];
+	   		evo.rgrgx[BLOCK_LOW(id,p,maxLambda)+i][j]=evo.rgrgx[i][j];
          }
       }
  
       /* evaluate the new search points using fitfun from above */ 
-      for (i = BLOCK_LOW(id,p,maxLambda); i <= BLOCK_HIGH(id,p,maxLambda); ++i) {
-	arFunvals[i] = fitfun(evo.rgrgx[i], (int) cmaes_Get(&evo, "dim"));
-        //printf("ID:%d, arFunvals[%d]=%lf\n",id,i,arFunvals[i]);
-      }
-
-      
-
-
-
+      #pragma omp parallel shared(id, p, maxLambda, evo, arFunvals, chunk) private(i)
+      {
+      	#pragma omp for schedule(dynamic,chunk)
+      	for (i = BLOCK_LOW(id,p,maxLambda); i <= BLOCK_HIGH(id,p,maxLambda); ++i) {
+      		arFunvals[i] = fitfun(evo.rgrgx[i], (int) cmaes_Get(&evo, "dim"));
+		    //printf("ID:%d, arFunvals[%d]=%lf\n",id,i,arFunvals[i]);
+		}
+	  }
       //Now communicate the arFunvals around
       MPI_Alltoallv(arFunvals,sendCnts,sdispls,MPI_DOUBLE,arFunvals,recvCnts,rdispls,MPI_DOUBLE,MPI_COMM_WORLD);
 
@@ -237,7 +252,7 @@ int main(int argc, char **argv) {
       canTerminate = cmaes_TestForTermination(&evo);
       if (canTerminate)
       {
-	printf("id:%d can terminate for reason:%s\n",id,cmaes_TestForTermination(&evo));
+	printf("id:%d can terminate for reason: %s\n",id,cmaes_TestForTermination(&evo));
       }
       MPI_Allreduce(&canTerminate,&canTerminateBuffer,1,MPI_INT,MPI_MAX,MPI_COMM_WORLD);//Get the max, if any are >0, then someone has terminated.
       canTerminate = canTerminateBuffer;//Reset so the loop will exit.
@@ -254,19 +269,25 @@ int main(int argc, char **argv) {
   elapsed_time += MPI_Wtime();
 
 
-
+ /* get best estimator for the optimum, xmean */
+  MPI_Reduce(&elapsed_time, &maxTime, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
   /* get best estimator for the optimum, xmean */
-  xfinal = cmaes_GetNew(&evo, "xmean"); /* "xbestever" might be used as well */
-  bestValue = fitfun(xfinal, (int) cmaes_Get(&evo, "dim"));
-  printf("Proccesor:%d has last mean of:%lf elapsedTime:%lf\n",id,bestValue,elapsed_time);
-  for (i=0;i<6*numberDipoles;i++)
-  {
-    printf("(%d:%d:%lf)\n",id,i,xfinal[i]);
+  if (id==0) {
+	  xfinal = cmaes_GetNew(&evo, "xmean"); /* "xbestever" might be used as well */
+	  bestValue = fitfun(xfinal, (int) cmaes_Get(&evo, "dim"));
+      printf("Processors: %d Dipoles:%d MaxLambda:%d\n", p, numberDipoles,maxLambda);
+	  printf("Proccesor: %d has last mean of: %lf elapsedTime: %lf\n",id,bestValue,maxTime);
+	  for (i=0;i<6*numberDipoles;i++)
+	  {
+	    printf("(%d:%d:%lf)\n",id,i,xfinal[i]);
+	  }
+	  free(xfinal); 
   }
+  
 
 //  cmaes_exit(&evo); /* release memory */ 
   /* do something with final solution and finally release memory */
-  free(xfinal); 
+  
 
   MPI_Finalize();
 

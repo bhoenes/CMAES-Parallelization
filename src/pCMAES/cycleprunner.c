@@ -47,6 +47,7 @@ int main(int argc, char **argv) {
   int id;  //Rank
   int p;  //Number processors
   double elapsed_time;//Time from beginning.
+  double maxTime; // largest elapsed time from all processes
   double bestValue;
   int lambda;
   int maxLambda;
@@ -88,11 +89,6 @@ int main(int argc, char **argv) {
   if (argc>=3)
   {
     maxLambda=atoi(argv[2]);
-  }
-
-  if (id==0)
-  {
-    printf("Dipoles:%d MaxLambda:%d\n",numberDipoles,maxLambda);
   }
 
   //Allocate lambda pieces to each processor, based on the size of maxLambda and the number of processors.
@@ -255,18 +251,25 @@ int main(int argc, char **argv) {
 
 
 
+
   /* get best estimator for the optimum, xmean */
-  xfinal = cmaes_GetNew(&evo, "xmean"); /* "xbestever" might be used as well */
-  bestValue = fitfun(xfinal, (int) cmaes_Get(&evo, "dim"));
-  printf("Proccesor:%d has last mean of:%lf elapsedTime:%lf\n",id,bestValue,elapsed_time);
-  for (i=0;i<6*numberDipoles;i++)
-  {
-    printf("(%d:%d:%lf)\n",id,i,xfinal[i]);
+  MPI_Reduce(&elapsed_time, &maxTime, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+  /* get best estimator for the optimum, xmean */
+  if (id==0) {
+	  xfinal = cmaes_GetNew(&evo, "xmean"); /* "xbestever" might be used as well */
+	  bestValue = fitfun(xfinal, (int) cmaes_Get(&evo, "dim"));
+      printf("Processors: %d Dipoles:%d MaxLambda:%d\n", p, numberDipoles,maxLambda);
+	  printf("Proccesor: %d has last mean of: %lf elapsedTime: %lf\n",id,bestValue,maxTime);
+	  for (i=0;i<6*numberDipoles;i++)
+	  {
+	    printf("(%d:%d:%lf)\n",id,i,xfinal[i]);
+	  }
+	  free(xfinal); 
   }
 
 //  cmaes_exit(&evo); /* release memory */ 
-  /* do something with final solution and finally release memory */
-  free(xfinal); 
+
+
 
   MPI_Finalize();
 
